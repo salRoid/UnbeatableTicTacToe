@@ -11,7 +11,7 @@ typedef vector<int> VI;
 #define isValidMoves(place) place > 9 || place < 1
 #define DFOR(i, j) for (int i = 0; i < 3; i++) for (int j = 0; j < 3; j++)
 
-
+// Placing the values on BOARD
 void placeFlag (char arr[3][3], int place, char move) {
 	switch(place) {
 		case 1: arr[0][0] = move; break;
@@ -26,7 +26,8 @@ void placeFlag (char arr[3][3], int place, char move) {
 	}
 }
 
-bool isMovesLeft(char arr[3][3]) { 
+// Check if any more moves are left on the board
+bool isMovesLeft(const char arr[3][3]) { 
 	DFOR(i,j) {
     	isBlank(i,j){ 
     		return true; 
@@ -35,7 +36,8 @@ bool isMovesLeft(char arr[3][3]) {
     return false; 
 }
 
-int movePicker(char arr[3][3], int searchValue, const int weights[10]) {
+// Random Move Selection based on highest score available.
+int movePicker(const char arr[3][3], const int searchValue, const int weights[10]) {
 	VI validValues;
 	int wins = INT_MIN;
 	IFOR(i) {
@@ -58,7 +60,8 @@ void printBoard(const char arr[3][3]) {
 	}
 }
 
-int evaluate (char arr[3][3], const char &humanChar, const char &beastChar) {
+// Evaluation of current state of the game.
+int evaluate (const char arr[3][3], const char &humanChar, const char &beastChar) {
 	// ROWS WIN SCORE
 	SFOR(i) { 
         if (arr[i][0] == arr [i][1] && arr[i][1] == arr[i][2]) { 
@@ -109,6 +112,7 @@ int minmax (char arr[3][3], const char &humanChar, const char &beastChar, int de
         return 0; 
     
     if (isMax) { 
+    	//Choosing Best Move for the beast.
         int best = INT_MIN; 
         SFOR(i) { 
             SFOR(j) {  
@@ -121,6 +125,7 @@ int minmax (char arr[3][3], const char &humanChar, const char &beastChar, int de
         } 
         return best; 
     } else { 
+    	//Choosing/Assuming Human always play the worst move.
         int best = INT_MAX; 
         SFOR(i) { 
             SFOR(j) {  
@@ -140,7 +145,6 @@ int beastMove (char arr[3][3], const VB &filledSpots, const char &humanChar, con
 	int moveWeights[9];
 	IFOR(i)
 		moveWeights[i] = INT_MAX;
-	int index;
 	IFOR(i) { 
 		 isEmpty(i, filledSpots){
 			placeFlag(arr, i, beastChar);
@@ -149,11 +153,10 @@ int beastMove (char arr[3][3], const VB &filledSpots, const char &humanChar, con
 			placeFlag (arr, i, ' ');
 			if (moveVal > place) {
 				place = moveVal;
-				//index = i;
 			}
 		}
 	}
-  	index = movePicker(arr, place, moveWeights);
+  	int index = movePicker(arr, place, moveWeights);
 	cout << "Beast Plays the move at:";
 	return index;
 }
@@ -167,10 +170,14 @@ int main () {
 	bool humanFlag = false;
 	cout << "Choose your Move X or O (X Plays First): ";
 	cin >> humanChar;
-	if (humanChar == 'X') {
+	if ((humanChar == 'X') || (humanChar == 'x')) {
 		beastChar = 'O';
 		humanFlag = true;
 	} else {
+		if ((humanChar != 'O') && (humanChar != 'o')) {
+			cout << "You chose an unknown move, Now you play second !!." << endl;
+		}
+		humanChar = 'O';
 		beastChar = 'X';
 	}
 	cout << "Human : " << humanChar << endl;
@@ -214,7 +221,15 @@ int main () {
 			result = false;
 			cout << "Player WINS" << endl;
 			exit (0);
-		}
+		} 
+		/*else {
+			int moveVal = minmax(arr, humanChar, beastChar, 0, !moveTracker);
+			if (moveVal == 0 && boardFillCount <= 3) {
+				result = true;
+				cout << "Match Drawn" << endl; 
+				exit(0);
+			}
+		}*/
 		moveTracker = !moveTracker;
 	}
 	if (!result) 
